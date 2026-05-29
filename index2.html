@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Refacium — Reconstruct with Precision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --ivory:#F8F5F0; --paper:#F2EFE9; --parchment:#EDE9E2;
+  --ash:#D4CEC6; --line:rgba(26,23,20,.1);
+  --ink:#1A1714; --slate:#5A5450; --muted:#8A837C;
+  --teal:#0B6E62; --teal-lt:#0D8A7B; --teal-pale:#E8F3F1; --teal-dim:rgba(11,110,98,.1);
+  --amber:#B87820; --red-acc:#B03A2A;
+  --font-d:'DM Serif Display',Georgia,serif; --font-b:'DM Sans',system-ui,sans-serif;
+  --r-sm:8px; --r-md:14px; --r-lg:24px;
+  --ease:.36s cubic-bezier(.4,0,.2,1);
+  --sh-sm:0 2px 10px rgba(26,23,20,.06); --sh-md:0 8px 28px rgba(26,23,20,.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--ivory);color:var(--ink);font-family:var(--font-b);font-weight:300;line-height:1.65;overflow-x:hidden}
+img{display:block;max-width:100%} a{color:inherit;text-decoration:none} ul{list-style:none}
+h1{font-family:var(--font-d);font-size:clamp(3rem,6.5vw,5.6rem);line-height:1.05;letter-spacing:-.025em}
+h2{font-family:var(--font-d);font-size:clamp(2rem,4vw,3.4rem);line-height:1.1;letter-spacing:-.018em}
+h3{font-family:var(--font-d);font-size:clamp(1.15rem,2vw,1.7rem);line-height:1.2;color:var(--ink)}
+p{font-size:1rem;color:var(--slate);max-width:60ch;line-height:1.7}
+.container{max-width:1160px;margin:0 auto;padding:0 2rem}
+.tag{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:var(--teal-pale);padding:.28rem .8rem;border-radius:100px;border:1px solid rgba(11,110,98,.2)}
+.btn{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--font-b);font-size:.9rem;font-weight:500;padding:.78rem 1.7rem;border-radius:100px;border:none;cursor:pointer;transition:var(--ease);white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff;box-shadow:0 4px 18px rgba(11,110,98,.22)}
+.btn-primary:hover{background:var(--teal-lt);transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--ash)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
+.reveal.visible{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.32s}.d4{transition-delay:.44s}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px}
+
+/* ANNOUNCEMENT */
+.announcement{background:var(--teal-pale);border-bottom:1px solid rgba(11,110,98,.14);padding:.46rem 0;text-align:center}
+.announcement a{font-size:.76rem;font-weight:500;color:var(--teal);display:inline-flex;align-items:center;gap:.5rem}
+.ann-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;animation:dotP 2s ease-in-out infinite}
+@keyframes dotP{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* HERO */
+#hero{min-height:100svh;display:grid;place-items:center;padding:5rem 2rem 4rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hblob{position:absolute;border-radius:50%;filter:blur(90px)}
+.hblob-1{width:600px;height:600px;background:radial-gradient(circle,rgba(11,110,98,.1),transparent);top:-10%;right:-8%}
+.hblob-2{width:420px;height:420px;background:radial-gradient(circle,rgba(184,120,32,.07),transparent);bottom:0;left:-8%}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse 75% 60% at 50% 50%,black 20%,transparent 85%)}
+.hero-inner{position:relative;z-index:1;text-align:center;max-width:900px}
+.hero-sub{font-size:clamp(.98rem,1.7vw,1.15rem);color:var(--slate);max-width:58ch;margin:0 auto 2.4rem;font-weight:300}
+.hero-buttons{display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap}
+.hero-stats{display:flex;justify-content:center;flex-wrap:wrap;margin-top:3.5rem;border:1px solid var(--ash);border-radius:var(--r-md);background:white;overflow:hidden;box-shadow:var(--sh-sm)}
+.hero-stat{flex:1;min-width:130px;padding:1.4rem 1.2rem;text-align:center;border-right:1px solid var(--ash)}
+.hero-stat:last-child{border-right:none}
+.hero-stat strong{display:block;font-family:var(--font-d);font-size:2rem;color:var(--ink);line-height:1;margin-bottom:.2rem}
+.hero-stat span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.hero-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem;width:100%;max-width:780px}
+.hz{border-radius:var(--r-md);padding:1.2rem 1.3rem}
+.hz-r{background:rgba(176,58,42,.05);border:1px solid rgba(176,58,42,.13)}
+.hz-y{background:rgba(184,120,32,.05);border:1px solid rgba(184,120,32,.13)}
+.hz-g{background:var(--teal-pale);border:1px solid rgba(11,110,98,.15)}
+.hz-dot{width:7px;height:7px;border-radius:50%;margin-bottom:.4rem}
+.hz h5{font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.25rem}
+.hz-r h5{color:var(--red-acc)} .hz-y h5{color:var(--amber)} .hz-g h5{color:var(--teal)}
+.hz p{font-size:.78rem;color:var(--slate);max-width:none;line-height:1.5}
+
+/* MARQUEE */
+.marquee-section{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash);padding:1.4rem 0;overflow:hidden}
+.marquee-label{text-align:center;font-size:.66rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.marquee-track{display:flex;width:max-content;animation:mScroll 30s linear infinite}
+.marquee-track:hover{animation-play-state:paused}
+.marquee-item{display:flex;align-items:center;padding:0 2.4rem;border-right:1px solid var(--ash);font-family:var(--font-d);font-size:.92rem;color:var(--muted);white-space:nowrap;transition:color var(--ease)}
+.marquee-item:hover{color:var(--teal)}
+@keyframes mScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SHARED */
+section{padding:6rem 0}
+.sec-label{display:flex;align-items:center;gap:.9rem;margin-bottom:.8rem}
+.sec-div{flex:1;height:1px;background:var(--ash);max-width:50px}
+.sec-head{margin-bottom:3rem}
+.sec-head p{margin-top:.8rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}
+.four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem}
+
+/* ABOUT */
+#about{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash)}
+.vision-quote{font-family:var(--font-d);font-size:clamp(1.35rem,2.5vw,2rem);line-height:1.32;font-style:italic;color:var(--ink);border-left:3px solid var(--teal);padding-left:1.5rem;margin-bottom:1.5rem}
+.about-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
+.pill{font-size:.76rem;font-weight:500;padding:.28rem .82rem;border-radius:100px;background:white;border:1.5px solid var(--ash);color:var(--slate);transition:var(--ease)}
+.pill:hover{border-color:var(--teal);color:var(--teal)}
+.about-cards{display:flex;flex-direction:column;gap:.85rem}
+.about-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.2rem 1.4rem;transition:var(--ease)}
+.about-card:hover{border-color:rgba(11,110,98,.28);box-shadow:var(--sh-sm)}
+.ac-lbl{font-size:.65rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--teal);margin-bottom:.32rem}
+.ac-val{font-family:var(--font-d);font-size:1.25rem;color:var(--ink);margin-bottom:.15rem}
+.ac-sub{font-size:.78rem;color:var(--slate)}
+
+/* PROBLEM */
+#problem{background:var(--ivory)}
+.ps-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:3rem;align-items:start}
+.ps-div{background:var(--ash);align-self:stretch}
+.ps-col h3{margin-bottom:1rem}
+.ps-col ul li{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 0;border-bottom:1px solid var(--parchment);font-size:.9rem;color:var(--slate)}
+.ps-col ul li:last-child{border:none}
+.ps-icon{width:18px;height:18px;flex-shrink:0;margin-top:3px}
+
+/* FEATURES */
+#features{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash)}
+.ftabs{display:flex;border:1px solid var(--ash);border-radius:var(--r-md);overflow:hidden;margin-bottom:2.6rem;background:white}
+.ftab{flex:1;padding:.85rem .7rem;text-align:center;font-size:.78rem;font-weight:500;color:var(--muted);background:transparent;border:none;cursor:pointer;border-right:1px solid var(--ash);transition:var(--ease);font-family:var(--font-b)}
+.ftab:last-child{border-right:none}
+.ftab:hover{background:var(--teal-pale);color:var(--teal)}
+.ftab.active{background:var(--teal-pale);color:var(--teal);border-bottom:2px solid var(--teal)}
+.fpanel{display:none}
+.fpanel.active{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
+.fpanel-text h3{margin-bottom:.7rem}
+.fpanel-text p{margin-bottom:1.3rem}
+.fp-list{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem}
+.fp-list li{display:flex;align-items:flex-start;gap:.6rem;font-size:.88rem;color:var(--slate)}
+.fp-list li::before{content:'';flex-shrink:0;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-top:.58rem}
+.fpanel-visual{background:white;border:1px solid var(--ash);border-radius:var(--r-lg);min-height:260px;display:grid;place-items:center;position:relative;overflow:hidden}
+.fpanel-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,var(--teal-pale),transparent);pointer-events:none}
+.fv-inner{position:relative;z-index:1;width:90%;padding:1.4rem}
+.fv-bar{height:5px;border-radius:100px;margin-bottom:.4rem}
+.fv-label{font-size:.7rem;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:.28rem}
+.fv-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:.9rem 1rem;margin-bottom:.55rem;box-shadow:var(--sh-sm)}
+.fv-card-row{display:flex;justify-content:space-between;align-items:center;font-size:.8rem}
+.fv-badge{font-size:.63rem;font-weight:600;padding:.18rem .5rem;border-radius:100px;letter-spacing:.04em}
+.fv-badge-r{background:rgba(176,58,42,.1);color:var(--red-acc)}
+.fv-badge-y{background:rgba(184,120,32,.1);color:var(--amber)}
+.fv-badge-g{background:var(--teal-pale);color:var(--teal)}
+.fv-step{display:flex;align-items:center;gap:.75rem;padding:.45rem 0;border-bottom:1px solid var(--parchment)}
+.fv-step:last-child{border:none}
+.fv-step-num{width:20px;height:20px;border-radius:50%;background:var(--teal-pale);color:var(--teal);font-size:.68rem;font-weight:600;display:grid;place-items:center;flex-shrink:0}
+.fv-step-text{font-size:.78rem;color:var(--slate)}
+.fv-doc{border:1px solid var(--ash);border-radius:var(--r-md);background:white;padding:.9rem;box-shadow:var(--sh-sm)}
+.fv-doc-row{font-size:.76rem;color:var(--slate);padding:.3rem 0;border-bottom:1px solid var(--parchment);display:flex;gap:.45rem;align-items:flex-start}
+.fv-doc-row:last-child{border:none}
+.fv-doc-icon{color:var(--teal);flex-shrink:0}
+.fv-scan{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.fv-scan-cell{background:var(--parchment);border-radius:var(--r-sm);padding:.75rem;text-align:center}
+.fv-scan-label{font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.25rem}
+.fv-scan-val{font-family:var(--font-d);font-size:1.1rem;color:var(--ink)}
+
+/* HEATMAP */
+#heatmap{background:var(--ivory)}
+.zone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2.2rem}
+.zone-card{border-radius:var(--r-md);padding:1.5rem}
+.zone-card-r{background:rgba(176,58,42,.05);border:1px solid rgba(176,58,42,.13)}
+.zone-card-y{background:rgba(184,120,32,.05);border:1px solid rgba(184,120,32,.13)}
+.zone-card-g{background:var(--teal-pale);border:1px solid rgba(11,110,98,.15)}
+.zone-pip{width:9px;height:9px;border-radius:50%;margin-bottom:.65rem}
+.zone-card h3{font-size:.98rem;margin-bottom:.45rem}
+.zone-card-r h3{color:var(--red-acc)} .zone-card-y h3{color:var(--amber)} .zone-card-g h3{color:var(--teal)}
+.zone-card ul{display:flex;flex-direction:column;gap:.3rem;margin-top:.45rem}
+.zone-card ul li{font-size:.8rem;color:var(--slate);display:flex;align-items:flex-start;gap:.45rem}
+.zone-card ul li::before{content:'·';flex-shrink:0;font-weight:700}
+
+/* WORKFLOW */
+#workflow{background:var(--paper);border-top:1px solid var(--ash)}
+.ws-wrap{position:relative}
+.ws-wrap::before{content:'';position:absolute;left:22px;top:0;bottom:0;width:1px;background:var(--ash)}
+.ws-step{display:flex;gap:1.8rem;padding:1.5rem 0;position:relative}
+.ws-num{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:white;border:1.5px solid var(--ash);display:grid;place-items:center;font-family:var(--font-d);font-size:.98rem;color:var(--teal);z-index:1;transition:var(--ease);box-shadow:var(--sh-sm)}
+.ws-step:hover .ws-num{background:var(--teal);color:white;border-color:var(--teal)}
+.ws-body{padding-top:.25rem}
+.ws-body h3{font-size:1rem;color:var(--ink);margin-bottom:.28rem}
+.ws-body p{font-size:.86rem}
+
+/* WHY */
+#why{background:var(--ivory)}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--ash);border:1px solid var(--ash);border-radius:var(--r-lg);overflow:hidden}
+.why-cell{background:var(--ivory);padding:2.3rem;transition:var(--ease)}
+.why-cell:hover{background:var(--teal-pale)}
+.why-num{font-family:var(--font-d);font-size:2.5rem;color:var(--ash);line-height:1;margin-bottom:.4rem;transition:var(--ease)}
+.why-cell:hover .why-num{color:var(--teal)}
+.why-cell h3{font-size:1.02rem;margin-bottom:.35rem}
+.why-cell p{font-size:.85rem}
+
+/* COST */
+#pricing{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash)}
+.cost-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.9rem;transition:var(--ease)}
+.cost-card:hover{box-shadow:var(--sh-md);transform:translateY(-3px)}
+.cost-card.feat{background:var(--teal);border-color:var(--teal)}
+.cost-badge{font-size:.66rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:.6rem}
+.cost-card.feat .cost-badge{color:rgba(255,255,255,.72)}
+.cost-price{font-family:var(--font-d);font-size:2.1rem;color:var(--ink);margin:.3rem 0 .18rem}
+.cost-card.feat .cost-price,.cost-card.feat h3{color:white}
+.cost-card.feat p{color:rgba(255,255,255,.7)}
+.cost-row{display:flex;justify-content:space-between;padding:.48rem 0;border-bottom:1px solid var(--parchment);font-size:.82rem;color:var(--slate)}
+.cost-card.feat .cost-row{border-bottom-color:rgba(255,255,255,.14);color:rgba(255,255,255,.76)}
+.cost-row:last-of-type{border:none}
+.score-bar{height:4px;border-radius:100px;background:var(--parchment);margin-top:.75rem;overflow:hidden}
+.score-fill{height:100%;border-radius:100px}
+
+/* IMPACT */
+#impact{background:var(--ivory);border-top:1px solid var(--ash)}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ash);border:1px solid var(--ash);border-radius:var(--r-lg);overflow:hidden;margin-top:2.8rem}
+.impact-cell{background:var(--ivory);padding:2.2rem 1.4rem;text-align:center;transition:var(--ease)}
+.impact-cell:hover{background:var(--teal-pale)}
+.impact-num{font-family:var(--font-d);font-size:clamp(2rem,4vw,3rem);color:var(--ink);line-height:1;margin-bottom:.4rem}
+.impact-num span{color:var(--teal)}
+.impact-lbl{font-size:.71rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;line-height:1.4}
+
+/* TESTIMONIALS */
+#testimonials{background:var(--paper);border-top:1px solid var(--ash)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem}
+.testi-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.7rem;transition:var(--ease)}
+.testi-card:hover{box-shadow:var(--sh-md);transform:translateY(-3px)}
+.testi-qt{font-family:var(--font-d);font-size:2.4rem;color:var(--teal-pale);line-height:.8;margin-bottom:.3rem}
+.testi-text{font-size:.86rem;color:var(--slate);margin-bottom:1.2rem;line-height:1.62}
+.testi-author{display:flex;align-items:center;gap:.7rem}
+.testi-av{width:36px;height:36px;border-radius:50%;background:var(--teal-pale);display:grid;place-items:center;font-size:.8rem;font-weight:600;color:var(--teal);border:1px solid rgba(11,110,98,.18);flex-shrink:0}
+.testi-name{font-size:.84rem;font-weight:500;color:var(--ink)}
+.testi-role{font-size:.72rem;color:var(--muted)}
+.stars{color:var(--amber);font-size:.7rem;margin-bottom:.6rem}
+
+/* SECURITY */
+#security{background:var(--ivory);border-top:1px solid var(--ash)}
+.security-wrap{text-align:center}
+.security-wrap > p{margin:0 auto 2.8rem;text-align:center}
+.cert-grid{display:flex;justify-content:center;flex-wrap:wrap;gap:1.1rem}
+.cert-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.5rem 1.9rem;min-width:125px;text-align:center;transition:var(--ease)}
+.cert-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:var(--sh-sm)}
+.cert-name{font-size:.78rem;font-weight:600;color:var(--ink);letter-spacing:.03em}
+.cert-sub{font-size:.68rem;color:var(--muted);margin-top:.18rem}
+
+/* PROCEDURES */
+#procedures{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash)}
+.proc-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.4rem;transition:var(--ease);border-top:2px solid transparent}
+.proc-card:hover{border-top-color:var(--teal);box-shadow:var(--sh-sm);transform:translateY(-2px)}
+.proc-card h3{font-size:.92rem;margin-bottom:.28rem}
+.proc-card p{font-size:.78rem;max-width:none}
+
+/* TEAM */
+#team{background:var(--ivory);border-top:1px solid var(--ash)}
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem}
+.team-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.6rem;text-align:center;transition:var(--ease)}
+.team-card:hover{box-shadow:var(--sh-md);transform:translateY(-3px)}
+.team-av{width:58px;height:58px;border-radius:50%;background:var(--teal-pale);margin:0 auto .85rem;display:grid;place-items:center;font-family:var(--font-d);font-size:1.2rem;color:var(--teal);border:1px solid rgba(11,110,98,.18)}
+.team-card h3{font-size:.9rem;margin-bottom:.16rem}
+.team-card p{font-size:.76rem;max-width:none}
+
+/* CONTACT */
+#contact{background:var(--paper);border-top:1px solid var(--ash)}
+.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.form-full{grid-column:1/-1}
+.form-input{width:100%;font-family:var(--font-b);font-size:.88rem;background:white;border:1px solid var(--ash);color:var(--ink);padding:.75rem 1rem;border-radius:var(--r-sm);outline:none;transition:var(--ease)}
+.form-input::placeholder{color:var(--muted)}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,110,98,.08)}
+textarea.form-input{resize:vertical;min-height:90px}
+.form-submit{grid-column:1/-1;background:var(--teal);color:#fff;font-family:var(--font-b);font-size:.9rem;font-weight:500;padding:.82rem;border:none;border-radius:var(--r-sm);cursor:pointer;transition:var(--ease)}
+.form-submit:hover{background:var(--teal-lt)}
+.cinfo-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem}
+.cinfo-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.cinfo-text{font-size:.86rem;color:var(--slate)}
+
+/* FOOTER */
+footer{background:var(--ink);padding:5rem 0 2.5rem}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.footer-logo{font-family:var(--font-d);font-size:1.5rem;color:white;margin-bottom:.65rem}
+.footer-logo span{color:var(--teal)}
+.footer-tagline{font-size:.8rem;color:rgba(255,255,255,.38);max-width:26ch;line-height:1.6;margin-bottom:1.2rem}
+.footer-socials{display:flex;gap:.55rem}
+.soc-btn{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.1);display:grid;place-items:center;font-size:.76rem;color:rgba(255,255,255,.35);transition:var(--ease)}
+.soc-btn:hover{border-color:var(--teal);color:var(--teal)}
+.footer-col h5{font-size:.66rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.26);margin-bottom:1rem}
+.footer-col ul{display:flex;flex-direction:column;gap:.55rem}
+.footer-col ul a{font-size:.81rem;color:rgba(255,255,255,.4);transition:var(--ease)}
+.footer-col ul a:hover{color:var(--teal)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;padding-top:1.8rem}
+.footer-copy{font-size:.74rem;color:rgba(255,255,255,.24)}
+.footer-legal{display:flex;gap:1.3rem}
+.footer-legal a{font-size:.74rem;color:rgba(255,255,255,.24);transition:var(--ease)}
+.footer-legal a:hover{color:var(--teal)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .two-col,.ps-grid,.why-grid{grid-template-columns:1fr}
+  .ps-div{display:none}
+  .three-col,.testi-grid,.zone-grid{grid-template-columns:1fr 1fr}
+  .four-col,.team-grid,.impact-grid{grid-template-columns:1fr 1fr}
+  .hero-zones{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .ftabs{flex-wrap:wrap}
+  .fpanel.active{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .three-col,.testi-grid,.zone-grid{grid-template-columns:1fr}
+  .four-col,.team-grid{grid-template-columns:1fr 1fr}
+  .impact-grid{grid-template-columns:1fr 1fr}
+  .hero-stats{flex-direction:column}
+  .hero-stat{border-right:none;border-bottom:1px solid var(--ash)}
+  .hero-stat:last-child{border:none}
+  .footer-top{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .contact-form{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="announcement">
+  <a href="#features"><span class="ann-dot"></span> New: AI-powered CT scan reconstruction planning now in early access &mdash; Learn more &rarr;</a>
+</div>
+
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hblob hblob-1"></div>
+    <div class="hblob hblob-2"></div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%;position:relative;z-index:1;">
+    <div class="reveal" style="font-family:var(--font-d);font-size:clamp(4rem,11vw,9rem);letter-spacing:-.035em;color:var(--ink);line-height:1;margin-bottom:1.6rem;user-select:none;">Refacium<span style="color:var(--teal)">.</span></div>
+    <div class="reveal d1" style="margin-bottom:1.4rem"><span class="tag">AI-Powered Surgical Intelligence &middot; MedTech</span></div>
+    <div class="hero-inner">
+      <h1 class="reveal d2">Reconstruct with <em style="font-style:italic;color:var(--teal)">Precision.</em><br>Visualize with Confidence.</h1>
+      <p class="hero-sub reveal d3">GenAI that bridges surgeons, patients, and insurers &mdash; through realistic pre/post visualization, AI facial risk heatmaps, CT scan analysis, and science-backed documentation.</p>
+      <div class="hero-buttons reveal d4">
+        <a href="#contact" class="btn btn-primary">Get Early Access &rarr;</a>
+        <a href="#features" class="btn btn-outline">Explore Platform</a>
+      </div>
+    </div>
+    <div class="hero-stats container reveal d4" style="max-width:660px;width:100%;margin-top:3rem;">
+      <div class="hero-stat"><strong>10+</strong><span>Procedures</span></div>
+      <div class="hero-stat"><strong>3</strong><span>Risk Zone Layers</span></div>
+      <div class="hero-stat"><strong>B2B</strong><span>Hospital Ready</span></div>
+      <div class="hero-stat"><strong>AI</strong><span>CT Analysis</span></div>
+    </div>
+    <div class="hero-zones container reveal d4" style="max-width:760px;width:100%;">
+      <div class="hz hz-r"><div class="hz-dot" style="background:var(--red-acc)"></div><h5>Red &mdash; High Risk</h5><p>Inner canthi, glabella, nasal bridge. Risk of blindness, necrosis, stroke.</p></div>
+      <div class="hz hz-y"><div class="hz-dot" style="background:var(--amber)"></div><h5>Yellow &mdash; Moderate</h5><p>Cheeks &amp; lips &mdash; safe with cannula, needle misplacement risks embolism.</p></div>
+      <div class="hz hz-g"><div class="hz-dot" style="background:var(--teal)"></div><h5>Green &mdash; Safer</h5><p>Jawline, lateral forehead, temples &mdash; fewer vessels, safer for contouring.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-section">
+  <p class="marquee-label">Trusted by leading hospitals, surgical centres &amp; research institutions</p>
+  <div style="overflow:hidden">
+    <div class="marquee-track">
+      <div class="marquee-item">AIIMS Delhi</div><div class="marquee-item">Fortis Healthcare</div><div class="marquee-item">Apollo Hospitals</div><div class="marquee-item">Manipal Health</div><div class="marquee-item">Medanta</div><div class="marquee-item">Max Healthcare</div><div class="marquee-item">Kokilaben Hospital</div><div class="marquee-item">IIT Jodhpur Research</div><div class="marquee-item">Narayana Health</div><div class="marquee-item">Tata Memorial</div>
+      <div class="marquee-item">AIIMS Delhi</div><div class="marquee-item">Fortis Healthcare</div><div class="marquee-item">Apollo Hospitals</div><div class="marquee-item">Manipal Health</div><div class="marquee-item">Medanta</div><div class="marquee-item">Max Healthcare</div><div class="marquee-item">Kokilaben Hospital</div><div class="marquee-item">IIT Jodhpur Research</div><div class="marquee-item">Narayana Health</div><div class="marquee-item">Tata Memorial</div>
+    </div>
+  </div>
+</div>
+
+<section id="about">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <div class="sec-label reveal"><span class="tag">Vision</span><div class="sec-div"></div></div>
+        <blockquote class="vision-quote reveal d1">&ldquo;Reconstruction is not only about appearance &mdash; it is about restoring anatomy, function, confidence, and long-term recovery.&rdquo;</blockquote>
+        <p class="reveal d2">Born from conversations with surgeons across India and internationally, Refacium addresses a critical gap: the absence of precise, patient-specific surgical planning tools that unify visualization, safety analysis, and documentation in one platform.</p>
+        <div class="about-pills reveal d3"><span class="pill">CT Scan Analysis</span><span class="pill">AI Visualization</span><span class="pill">Facial Risk Mapping</span><span class="pill">MedTech B2B</span><span class="pill">Clinical Documentation</span><span class="pill">Informed Consent</span></div>
+      </div>
+      <div class="about-cards reveal d2">
+        <div class="about-card"><div class="ac-lbl">Patient Safety</div><div class="ac-val">Risk-mapped</div><div class="ac-sub">AI predicts vascular risk zones before any injection or incision</div></div>
+        <div class="about-card"><div class="ac-lbl">Clinical Intelligence</div><div class="ac-val">CT-powered</div><div class="ac-sub">Older &amp; recent scans analyzed for precise anatomical reconstruction planning</div></div>
+        <div class="about-card"><div class="ac-lbl">Outcome Clarity</div><div class="ac-val">Visualized</div><div class="ac-sub">Realistic before/after imagery aligned with patient expectations, not templates</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="container">
+    <div class="sec-head reveal" style="max-width:540px">
+      <div class="sec-label"><span class="tag">Problem &amp; Solution</span><div class="sec-div"></div></div>
+      <h2>The Gap Refacium Closes</h2>
+      <p>Traditional surgical planning leaves doctors and patients in a communication void. Refacium replaces guesswork with AI-verified clarity.</p>
+    </div>
+    <div class="ps-grid">
+      <div class="ps-col reveal">
+        <h3 style="color:var(--red-acc)">The Problem</h3>
+        <ul>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#B03A2A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span>Surgeons rely on verbal explanations or rough sketches, leaving room for dangerous misinterpretation</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#B03A2A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span>No proactive vascular risk assessment before injections or incisions</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#B03A2A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span>High patient load and limited resources create planning gaps for trauma cases in India</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#B03A2A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span>Insurance claims delayed by missing or inadequate structured medical documentation</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#B03A2A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span>Medico-legal disputes from undocumented consultations and missing consent trails</span></li>
+        </ul>
+      </div>
+      <div class="ps-div"></div>
+      <div class="ps-col reveal d2">
+        <h3 style="color:var(--teal)">The Solution</h3>
+        <ul>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#0B6E62" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><span>Realistic AI-generated before/after visualizations that set crystal-clear patient expectations</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#0B6E62" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><span>Proactive facial heatmaps identifying high/medium/low risk zones before any procedure begins</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#0B6E62" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><span>CT scan analysis comparing older and recent scans for patient-specific reconstruction planning</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#0B6E62" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><span>Auto-generated insurance documentation with medically essential clinical terminology</span></li>
+          <li><svg class="ps-icon" viewBox="0 0 24 24" fill="none" stroke="#0B6E62" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><span>Digitally signed informed consent &mdash; creating audit-proof medico-legal defense for every case</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">Platform</span><div class="sec-div"></div></div>
+      <h2>One Platform.<br>Every Step of Surgery.</h2>
+      <p>Visualization, safety intelligence, cost analytics, documentation, and AI recommendations &mdash; unified in one clinical workflow.</p>
+    </div>
+    <div class="ftabs reveal d1">
+      <button class="ftab active" onclick="switchTab(0)">Visualization</button>
+      <button class="ftab" onclick="switchTab(1)">Risk Heatmaps</button>
+      <button class="ftab" onclick="switchTab(2)">Cost Analysis</button>
+      <button class="ftab" onclick="switchTab(3)">Documentation</button>
+      <button class="ftab" onclick="switchTab(4)">CT Scan AI</button>
+    </div>
+    <div class="fpanel active reveal d2" id="fp0">
+      <div class="fpanel-text">
+        <h3>Pre &amp; Post Surgery Visualization</h3>
+        <p>GenAI generates realistic, patient-specific before/after images from uploaded photos. Covers 10+ procedures from rhinoplasty to orbital reconstruction.</p>
+        <ul class="fp-list"><li>Realistic outcome imagery from real patient photos, not generic templates</li><li>Bridges the doctor&ndash;patient communication gap visually</li><li>Reduces patient anxiety by setting clear, accurate expectations</li><li>Saves consultation time &mdash; answers &ldquo;what will I look like?&rdquo; instantly</li></ul>
+        <a href="#contact" class="btn btn-primary" style="font-size:.84rem;padding:.66rem 1.4rem">Request Demo &rarr;</a>
+      </div>
+      <div class="fpanel-visual">
+        <div class="fv-inner">
+          <div style="margin-bottom:.9rem"><div class="fv-label"><span>Pre-Surgery</span><span>Post-Surgery (AI)</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.55rem"><div style="background:var(--parchment);border-radius:var(--r-sm);height:80px;display:grid;place-items:center;font-size:.7rem;color:var(--muted);border:1px solid var(--ash)">Patient Photo</div><div style="background:var(--teal-pale);border-radius:var(--r-sm);height:80px;display:grid;place-items:center;font-size:.7rem;color:var(--teal);border:1px solid rgba(11,110,98,.18)">AI Outcome</div></div></div>
+          <div class="fv-card"><div class="fv-card-row"><span style="color:var(--ink);font-weight:500">Rhinoplasty</span><span class="fv-badge fv-badge-y">Medium Risk</span></div><div style="font-size:.7rem;color:var(--muted);margin-top:.28rem">Recovery: 10&ndash;14 days &middot; Permanent result</div></div>
+          <div class="fv-card"><div class="fv-card-row"><span style="color:var(--ink);font-weight:500">Lip Augmentation</span><span class="fv-badge fv-badge-g">Low Risk</span></div><div style="font-size:.7rem;color:var(--muted);margin-top:.28rem">Recovery: 2&ndash;3 days &middot; 12&ndash;18 month duration</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fpanel reveal d2" id="fp1">
+      <div class="fpanel-text">
+        <h3>AI Facial Risk Heatmaps</h3>
+        <p>Unlike reactive sonography, Refacium predicts vascular danger before any injection or incision. Red, yellow, and green zones mapped anatomically for every procedure.</p>
+        <ul class="fp-list"><li>Red: glabella, nasal bridge, medial canthus &mdash; blindness &amp; stroke risk</li><li>Yellow: cheeks, lips &mdash; safe with cannula, careful technique required</li><li>Green: jawline, temples, lateral forehead &mdash; fewer vessels</li><li>Step-by-step surgical roadmap with tool &amp; depth recommendations</li></ul>
+        <a href="#heatmap" class="btn btn-primary" style="font-size:.84rem;padding:.66rem 1.4rem">See Zone Detail &rarr;</a>
+      </div>
+      <div class="fpanel-visual">
+        <div class="fv-inner">
+          <div style="margin-bottom:.7rem;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Risk Zone Summary</div>
+          <div class="fv-card" style="margin-bottom:.45rem"><div class="fv-card-row"><span style="color:var(--ink)">Glabella / Nasal Bridge</span><span class="fv-badge fv-badge-r">High Risk</span></div></div>
+          <div class="fv-card" style="margin-bottom:.45rem"><div class="fv-card-row"><span style="color:var(--ink)">Medial Canthus (both)</span><span class="fv-badge fv-badge-r">High Risk</span></div></div>
+          <div class="fv-card" style="margin-bottom:.45rem"><div class="fv-card-row"><span style="color:var(--ink)">Cheeks / Lips</span><span class="fv-badge fv-badge-y">Moderate</span></div></div>
+          <div class="fv-card"><div class="fv-card-row"><span style="color:var(--ink)">Jawline / Temples</span><span class="fv-badge fv-badge-g">Safer</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fpanel reveal d2" id="fp2">
+      <div class="fpanel-text">
+        <h3>Cost &amp; Risk Analysis Engine</h3>
+        <p>Complete financial and risk breakdown of every procedure option. Surgery vs. non-surgical, upfront vs. recurring &mdash; with AI safety scoring.</p>
+        <ul class="fp-list"><li>Surgery vs. filler cost comparison with 5-year total view</li><li>Recovery &amp; maintenance costs included for the full picture</li><li>AI safety score &mdash; Low / Medium / High per option</li><li>Shows % similarity in results at % of upfront cost</li></ul>
+        <a href="#pricing" class="btn btn-primary" style="font-size:.84rem;padding:.66rem 1.4rem">See Cost Analysis &rarr;</a>
+      </div>
+      <div class="fpanel-visual">
+        <div class="fv-inner">
+          <div style="margin-bottom:.75rem"><div class="fv-label"><span>Surgery</span><span>&#8377;1,60,000</span></div><div class="fv-bar" style="background:var(--amber);width:95%"></div></div>
+          <div style="margin-bottom:.75rem"><div class="fv-label"><span>Fillers (5yr)</span><span>&#8377;1,65,000</span></div><div class="fv-bar" style="background:var(--teal);width:98%"></div></div>
+          <div style="margin-bottom:.9rem"><div class="fv-label"><span>Upfront &mdash; Fillers</span><span>&#8377;45,000</span></div><div class="fv-bar" style="background:var(--teal-pale);border:1px solid rgba(11,110,98,.2);width:28%"></div></div>
+          <div class="fv-card"><div class="fv-card-row"><span style="color:var(--ink);font-weight:500">AI Recommendation</span><span class="fv-badge fv-badge-g">80% similar result</span></div><div style="font-size:.7rem;color:var(--muted);margin-top:.28rem">Non-surgical at ~50% lower upfront for low-risk patients</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fpanel reveal d2" id="fp3">
+      <div class="fpanel-text">
+        <h3>Insurance &amp; Documentation Support</h3>
+        <p>AI auto-generates structured medical records using correct clinical terminology &mdash; converting cosmetic procedures to medically indicated cases, accelerating insurance approvals.</p>
+        <ul class="fp-list"><li>Rhinoplasty &rarr; &ldquo;deviated nasal septum causing breathing issues&rdquo;</li><li>Blepharoplasty &rarr; &ldquo;drooping eyelids causing vision impairment&rdquo;</li><li>Digitally signed informed consent &mdash; audit-proof medico-legal trail</li><li>Pre-op records, heatmaps, roadmaps, and post-op comparison stored</li></ul>
+        <a href="#contact" class="btn btn-primary" style="font-size:.84rem;padding:.66rem 1.4rem">Get Started &rarr;</a>
+      </div>
+      <div class="fpanel-visual">
+        <div class="fv-inner">
+          <div class="fv-doc">
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.55rem">Case Documentation</div>
+            <div class="fv-doc-row"><span class="fv-doc-icon">&#10003;</span><span>Pre-op photos &amp; scan baseline attached</span></div>
+            <div class="fv-doc-row"><span class="fv-doc-icon">&#10003;</span><span>Heatmap safety zones on record</span></div>
+            <div class="fv-doc-row"><span class="fv-doc-icon">&#10003;</span><span>Informed consent &mdash; digitally signed</span></div>
+            <div class="fv-doc-row"><span class="fv-doc-icon">&#10003;</span><span>&ldquo;Medically indicated&rdquo; classification applied</span></div>
+            <div class="fv-doc-row"><span class="fv-doc-icon">&#10003;</span><span>Post-op outcome vs predicted &mdash; stored</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fpanel reveal d2" id="fp4">
+      <div class="fpanel-text">
+        <h3>CT Scan &amp; Reconstruction AI</h3>
+        <p>Compare older and recent CT scans with AI anatomical understanding to support reconstruction workflows for trauma, orbital, mandibular, and zygomatic cases.</p>
+        <ul class="fp-list"><li>Older vs. recent scan comparison for anatomical baseline</li><li>Supports mandibular, orbital, zygomatic, rhinoplasty planning</li><li>Patient-specific reconstruction roadmaps from imaging data</li><li>Designed for high-volume trauma centers with limited resources</li></ul>
+        <a href="#contact" class="btn btn-primary" style="font-size:.84rem;padding:.66rem 1.4rem">Request Access &rarr;</a>
+      </div>
+      <div class="fpanel-visual">
+        <div class="fv-inner">
+          <div style="margin-bottom:.65rem;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Scan Comparison</div>
+          <div class="fv-scan" style="margin-bottom:.75rem"><div class="fv-scan-cell"><div class="fv-scan-label">Prior Scan</div><div class="fv-scan-val">2022</div></div><div class="fv-scan-cell"><div class="fv-scan-label">Recent Scan</div><div class="fv-scan-val">2025</div></div></div>
+          <div class="fv-step"><div class="fv-step-num">1</div><div class="fv-step-text">Anatomical structures mapped from both scans</div></div>
+          <div class="fv-step"><div class="fv-step-num">2</div><div class="fv-step-text">Differences highlighted for reconstruction planning</div></div>
+          <div class="fv-step"><div class="fv-step-num">3</div><div class="fv-step-text">Patient-specific surgical roadmap generated</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="heatmap">
+  <div class="container">
+    <div class="sec-head reveal" style="max-width:620px">
+      <div class="sec-label"><span class="tag">Safety Intelligence</span><div class="sec-div"></div></div>
+      <h2>Facial Risk Heatmaps &mdash;<br>Refacium&rsquo;s Key Differentiator</h2>
+      <p>Unlike sonography (reactive &amp; technical), Refacium predicts risk before any injection. Unlike Crisalix or Vectra (aesthetics only), Refacium ensures beauty and safety at every step.</p>
+    </div>
+    <div class="zone-grid reveal d1">
+      <div class="zone-card zone-card-r">
+        <div class="zone-pip" style="background:var(--red-acc)"></div>
+        <h3>Red &mdash; High Risk</h3>
+        <p style="font-size:.82rem;max-width:none;margin-bottom:.45rem">Inner eye corners, glabella, nasal bridge. Risks include blindness, necrosis, and stroke. Requires maximum caution and a specialist approach.</p>
+        <ul><li>Glabella &amp; forehead centre</li><li>Nasal bridge &amp; dorsum</li><li>Medial canthus (inner eye corners)</li><li>Nasolabial fold &mdash; medial segment</li></ul>
+      </div>
+      <div class="zone-card zone-card-y">
+        <div class="zone-pip" style="background:var(--amber)"></div>
+        <h3>Yellow &mdash; Moderate Risk</h3>
+        <p style="font-size:.82rem;max-width:none;margin-bottom:.45rem">Safe with correct technique. Cannula preferred over needle. Misplacement risks swelling, vascular occlusion, and embolism.</p>
+        <ul><li>Cheeks &amp; malar eminence</li><li>Lip borders &amp; vermilion</li><li>Perioral region</li><li>Lower eyelid / tear trough</li></ul>
+      </div>
+      <div class="zone-card zone-card-g">
+        <div class="zone-pip" style="background:var(--teal)"></div>
+        <h3>Green &mdash; Safer Zones</h3>
+        <p style="font-size:.82rem;max-width:none;margin-bottom:.45rem">Fewer vascular structures. Safer for contouring and augmentation with standard technique and appropriate depth.</p>
+        <ul><li>Jawline &amp; mandibular border</li><li>Lateral forehead &amp; temples</li><li>Chin &amp; mentum</li><li>Lateral cheek &amp; pre-auricular</li></ul>
+      </div>
+    </div>
+    <div class="reveal d2" style="margin-top:1.8rem;padding:1.4rem 1.7rem;background:var(--teal-pale);border:1px solid rgba(11,110,98,.15);border-radius:var(--r-md)">
+      <p style="max-width:none;color:var(--teal);font-size:.88rem"><strong style="font-weight:600">Surgical Roadmap Included:</strong> For every case, Refacium generates a step-by-step procedure plan with patient safety checks, suggested tool type (needle vs cannula), and safe filler depth ranges &mdash; so surgeons can explain the entire plan to patients with confidence.</p>
+    </div>
+  </div>
+</section>
+
+<section id="procedures">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">Procedures</span><div class="sec-div"></div></div>
+      <h2>Reconstruction &amp; Cosmetic<br>Procedures at Every Level</h2>
+    </div>
+    <div class="four-col">
+      <div class="proc-card reveal"><h3>Rhinoplasty</h3><p>Nasal reconstruction restoring airway function and facial symmetry after trauma or deformity.</p></div>
+      <div class="proc-card reveal d1"><h3>Mandibular Reconstruction</h3><p>Jaw reconstruction for fractures &mdash; restoring chewing, speech, and structural stability.</p></div>
+      <div class="proc-card reveal d2"><h3>Zygomatic Reconstruction</h3><p>CT-guided cheekbone repositioning for facial symmetry and orbital stability after midface trauma.</p></div>
+      <div class="proc-card reveal d3"><h3>Orbital Reconstruction</h3><p>Eye socket reconstruction protecting the medial canthus and inner orbital anatomy.</p></div>
+      <div class="proc-card reveal"><h3>Skin Grafts &amp; Flap</h3><p>Soft tissue coverage and vascular restoration for severe trauma with tissue loss.</p></div>
+      <div class="proc-card reveal d1"><h3>Lip Augmentation</h3><p>Filler-based enhancement with precise risk zone guidance and realistic visualization.</p></div>
+      <div class="proc-card reveal d2"><h3>Blepharoplasty</h3><p>Eyelid correction documented as functional vision impairment for insurance eligibility.</p></div>
+      <div class="proc-card reveal d3"><h3>Jawline &amp; Chin</h3><p>Surgical and non-surgical contouring with full cost/risk comparison and AI outcome scoring.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="workflow">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <div class="sec-label reveal"><span class="tag">How It Works</span><div class="sec-div"></div></div>
+        <h2 class="reveal d1">From Patient Intake<br>to Documented Outcome</h2>
+        <p class="reveal d2" style="margin-top:.85rem">Refacium guides surgeons and patients through an intelligent step-by-step workflow &mdash; reducing consultation time, errors, and medico-legal exposure at every stage.</p>
+      </div>
+      <div class="ws-wrap reveal d1">
+        <div class="ws-step"><div class="ws-num">01</div><div class="ws-body"><h3>Patient Safety Check</h3><p>Review allergies, medications (blood thinners), past surgeries, and prior filler history.</p></div></div>
+        <div class="ws-step"><div class="ws-num">02</div><div class="ws-body"><h3>CT Scan &amp; Image Upload</h3><p>Upload patient photos and CT scans. AI compares older and recent scans for anatomical reference.</p></div></div>
+        <div class="ws-step"><div class="ws-num">03</div><div class="ws-body"><h3>AI Visualization</h3><p>GenAI produces realistic patient-specific before/after images &mdash; not generic templates.</p></div></div>
+        <div class="ws-step"><div class="ws-num">04</div><div class="ws-body"><h3>Risk Heatmap Analysis</h3><p>AI maps zones, suggests tools (needle vs cannula) and safe depth ranges.</p></div></div>
+        <div class="ws-step"><div class="ws-num">05</div><div class="ws-body"><h3>Cost &amp; Recommendation</h3><p>Financial breakdown with AI safety scores and outcome similarity percentages.</p></div></div>
+        <div class="ws-step"><div class="ws-num">06</div><div class="ws-body"><h3>Documentation &amp; Consent</h3><p>Audit-proof records, insurance reports, and digitally signed consent &mdash; one click.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">Why Refacium</span><div class="sec-div"></div></div>
+      <h2>Beyond Aesthetics &mdash;<br>Safety &amp; Science Every Step</h2>
+    </div>
+    <div class="why-grid reveal">
+      <div class="why-cell"><div class="why-num">01</div><h3>Not Just Visualization</h3><p>Competitors show only outcomes. Refacium adds safety heatmaps, cost analysis, and documentation in one platform.</p></div>
+      <div class="why-cell"><div class="why-num">02</div><h3>Proactive Risk Intelligence</h3><p>Unlike reactive sonography, Refacium predicts vascular risks before any injection &mdash; protecting both patient and surgeon.</p></div>
+      <div class="why-cell"><div class="why-num">03</div><h3>Insurance-Ready Documentation</h3><p>AI automatically applies medically correct language &mdash; &ldquo;nose reshaping&rdquo; becomes &ldquo;deviated nasal septum causing breathing issues.&rdquo;</p></div>
+      <div class="why-cell"><div class="why-num">04</div><h3>Medico-Legal Defense</h3><p>Digitally signed consent, AI-verified before/after records, and documented risk zones create an unbreakable audit trail.</p></div>
+      <div class="why-cell"><div class="why-num">05</div><h3>Trauma &amp; Reconstruction Focus</h3><p>Built for real clinical gaps in India &mdash; CT scan comparison, trauma planning, and reconstruction alongside cosmetic surgery.</p></div>
+      <div class="why-cell"><div class="why-num">06</div><h3>Patient Empowerment</h3><p>Clear cost comparisons, realistic visualizations, and AI recommendations let patients choose with full information.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">Cost Analysis Engine</span><div class="sec-div"></div></div>
+      <h2>Every Procedure, Fully Costed<br>and Risk-Scored</h2>
+      <p>Complete financial picture &mdash; surgery vs non-surgical, upfront vs recurring, with an AI safety score for every option.</p>
+    </div>
+    <div class="three-col">
+      <div class="cost-card reveal">
+        <div class="cost-badge">Surgical Option</div>
+        <div style="font-size:.91rem;font-weight:500;color:var(--ink);margin-bottom:.28rem">Rhinoplasty &mdash; Surgery</div>
+        <div class="cost-price">&#8377;1,60,000</div>
+        <p style="font-size:.78rem;margin:0 0 .9rem;max-width:none">One-time, permanent correction</p>
+        <div class="cost-row"><span>Procedure</span><span>&#8377;1,50,000</span></div>
+        <div class="cost-row"><span>Recovery</span><span>&#8377;10,000</span></div>
+        <div class="cost-row"><span>Maintenance (5yr)</span><span>&mdash;</span></div>
+        <div class="cost-row"><span>Total at 5 Years</span><span style="font-weight:600;color:var(--ink)">&#8377;1,60,000</span></div>
+        <div style="margin-top:.8rem"><div style="font-size:.7rem;color:var(--muted);margin-bottom:.35rem;font-weight:500">Safety Score &mdash; Medium Risk</div><div class="score-bar"><div class="score-fill" style="width:55%;background:var(--amber)"></div></div></div>
+      </div>
+      <div class="cost-card feat reveal d1">
+        <div class="cost-badge">Non-Surgical</div>
+        <div style="font-size:.91rem;font-weight:500;margin-bottom:.28rem">Rhinoplasty &mdash; Fillers</div>
+        <div class="cost-price">&#8377;1,65,000</div>
+        <p style="font-size:.78rem;margin:0 0 .9rem;max-width:none">Over 5 years &mdash; lower upfront cost</p>
+        <div class="cost-row"><span>Procedure</span><span>&#8377;45,000</span></div>
+        <div class="cost-row"><span>Recovery</span><span>&#8377;2,000</span></div>
+        <div class="cost-row"><span>Maintenance (5yr)</span><span>&#8377;1,50,000</span></div>
+        <div class="cost-row"><span>Total at 5 Years</span><span style="font-weight:600">&#8377;1,65,000</span></div>
+        <div style="margin-top:.8rem"><div style="font-size:.7rem;color:rgba(255,255,255,.7);margin-bottom:.35rem;font-weight:500">Safety Score &mdash; Low Risk</div><div class="score-bar" style="background:rgba(255,255,255,.22)"><div class="score-fill" style="width:82%;background:white"></div></div></div>
+      </div>
+      <div class="cost-card reveal d2">
+        <div class="cost-badge">AI Recommendation</div>
+        <div style="font-size:.91rem;font-weight:500;color:var(--ink);margin-bottom:.28rem">Outcome Similarity</div>
+        <div class="cost-price" style="font-size:2.4rem;color:var(--teal)">80%</div>
+        <p style="font-size:.78rem;margin:0 0 .9rem;max-width:none">Similar result at ~50% lower upfront via fillers</p>
+        <div class="cost-row"><span>Upfront Savings</span><span style="color:var(--teal);font-weight:600">&#8377;1,05,000</span></div>
+        <div class="cost-row"><span>Result Quality</span><span>High (Temporary)</span></div>
+        <div class="cost-row"><span>Recovery Period</span><span>Shorter</span></div>
+        <div style="margin-top:.8rem;padding:.65rem .85rem;background:var(--teal-pale);border-radius:var(--r-sm);font-size:.78rem;color:var(--teal);border:1px solid rgba(11,110,98,.17)">AI recommends non-surgical for budget-conscious, low-risk patients</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="impact">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:2.8rem">
+      <div style="display:flex;justify-content:center;margin-bottom:.65rem"><span class="tag">Impact</span></div>
+      <h2>Helping surgical teams see<br>measurable results</h2>
+    </div>
+    <div class="impact-grid reveal d1">
+      <div class="impact-cell"><div class="impact-num" id="c1">0<span>+</span></div><div class="impact-lbl">Procedures<br>supported</div></div>
+      <div class="impact-cell"><div class="impact-num" id="c2">0<span>%</span></div><div class="impact-lbl">Reduction in<br>consultation time</div></div>
+      <div class="impact-cell"><div class="impact-num" id="c3">0<span>+</span></div><div class="impact-lbl">Surgeon interactions<br>across India</div></div>
+      <div class="impact-cell"><div class="impact-num" id="c4">0<span>x</span></div><div class="impact-lbl">Faster insurance<br>documentation</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">Early Feedback</span><div class="sec-div"></div></div>
+      <h2>What Surgeons Are Saying</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="testi-qt">&ldquo;</div><p class="testi-text">The heatmap safety zones genuinely change how I explain procedures. The combination of visualization and risk intelligence is something I haven&rsquo;t seen in any other tool.</p><div class="testi-author"><div class="testi-av">DR</div><div><div class="testi-name">Dr. Rajesh M.</div><div class="testi-role">Maxillofacial Surgeon, Mumbai</div></div></div></div>
+      <div class="testi-card reveal d1"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="testi-qt">&ldquo;</div><p class="testi-text">Insurance documentation has always been a pain point. Refacium&rsquo;s auto-generation of clinical terminology could genuinely accelerate approvals across our entire hospital.</p><div class="testi-author"><div class="testi-av">SA</div><div><div class="testi-name">Dr. Sunita A.</div><div class="testi-role">Plastic Surgeon, Delhi</div></div></div></div>
+      <div class="testi-card reveal d2"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="testi-qt">&ldquo;</div><p class="testi-text">In trauma reconstruction, CT-based planning is everything. Comparing older and recent scans in a unified visualization platform fills a real gap for high-volume centres.</p><div class="testi-author"><div class="testi-av">KP</div><div><div class="testi-name">Dr. Kavita P.</div><div class="testi-role">Reconstructive Surgeon, Chennai</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="security">
+  <div class="container">
+    <div class="security-wrap">
+      <div style="display:flex;justify-content:center;margin-bottom:.65rem" class="reveal"><span class="tag">Security &amp; Compliance</span></div>
+      <h2 class="reveal d1">Enterprise-grade security<br>and controls</h2>
+      <p class="reveal d2">Refacium meets the highest standards for medical data security and compliance &mdash; with all controls hospital IT teams require.</p>
+      <div class="cert-grid reveal d2">
+        <div class="cert-card"><div class="cert-name">HIPAA</div><div class="cert-sub">Health data compliance</div></div>
+        <div class="cert-card"><div class="cert-name">SOC 2 Type II</div><div class="cert-sub">Security controls</div></div>
+        <div class="cert-card"><div class="cert-name">ISO 27001</div><div class="cert-sub">Information security</div></div>
+        <div class="cert-card"><div class="cert-name">DPDPA 2023</div><div class="cert-sub">India data privacy</div></div>
+        <div class="cert-card"><div class="cert-name">GDPR Ready</div><div class="cert-sub">European compliance</div></div>
+        <div class="cert-card"><div class="cert-name">NABH Aligned</div><div class="cert-sub">Indian hospital standards</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="team">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">The Team</span><div class="sec-div"></div></div>
+      <h2>Built at the Intersection of<br>AI, Medicine &amp; Engineering</h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="team-av">F</div><h3>Founder &amp; CEO</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">MedTech Vision &amp; Strategy</p><p>Drives Refacium&rsquo;s product vision, clinical partnerships, and go-to-market strategy.</p></div>
+      <div class="team-card reveal d1"><div class="team-av">AI</div><h3>AI Research Lead</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">Computer Vision &amp; GenAI</p><p>Develops visualization models, facial risk mapping algorithms, and CT analysis pipeline.</p></div>
+      <div class="team-card reveal d2"><div class="team-av">CL</div><h3>Clinical Advisor</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">Reconstructive Surgery</p><p>Validates heatmap accuracy and ensures clinical-grade workflow integration.</p></div>
+      <div class="team-card reveal d3"><div class="team-av">BD</div><h3>Head of Business Dev</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">Hospital Partnerships</p><p>Leads institutional licensing, clinical validation pilots, and hospital onboarding.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:2.4rem" class="reveal">
+      <p style="max-width:44ch;margin:0 auto 1.3rem;text-align:center">Seeking clinical advisors, institutional partners, and investors who believe in AI-powered surgical planning.</p>
+      <a href="#contact" class="btn btn-primary">Partner With Us &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="two-col" style="align-items:start">
+      <div>
+        <div class="sec-label reveal" style="margin-bottom:.9rem"><span class="tag">Get in Touch</span></div>
+        <h2 class="reveal d1">Ready to Transform<br>Surgical Planning?</h2>
+        <p class="reveal d2" style="margin-top:.8rem">Whether you&rsquo;re a hospital, surgical centre, or investor &mdash; let&rsquo;s talk about how Refacium can work for you.</p>
+        <div class="reveal d3" style="margin-top:1.7rem">
+          <div class="cinfo-row"><div class="cinfo-dot"></div><div class="cinfo-text">hello@refacium.ai</div></div>
+          <div class="cinfo-row"><div class="cinfo-dot"></div><div class="cinfo-text">Hospital &amp; clinic partnerships welcome</div></div>
+          <div class="cinfo-row"><div class="cinfo-dot"></div><div class="cinfo-text">Investor &amp; MedTech accelerator inquiries</div></div>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <form class="contact-form" onsubmit="handleForm(event)">
+          <input class="form-input" type="text" placeholder="Full Name" required />
+          <input class="form-input" type="email" placeholder="Email Address" required />
+          <input class="form-input form-full" type="text" placeholder="Organisation / Hospital" />
+          <select class="form-input form-full"><option value="" disabled selected>I&rsquo;m interested in&hellip;</option><option>Hospital / Clinic Pilot</option><option>Investment / Partnership</option><option>Clinical Advisory Role</option><option>Product Demo</option><option>Other</option></select>
+          <textarea class="form-input form-full" placeholder="Tell us more&hellip;"></textarea>
+          <button class="form-submit" type="submit">Send Message &rarr;</button>
+        </form>
+        <div id="formSuccess" style="display:none;margin-top:.75rem;padding:.8rem .95rem;background:var(--teal-pale);border:1px solid rgba(11,110,98,.2);border-radius:var(--r-sm);color:var(--teal);font-size:.84rem">&#10003; Message sent! We&rsquo;ll be in touch within 24 hours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Refacium<span>.</span></div>
+        <p class="footer-tagline">AI-powered surgical visualization, safety intelligence, and documentation for leading hospitals.</p>
+        <div class="footer-socials"><a class="soc-btn" href="#" aria-label="LinkedIn">in</a><a class="soc-btn" href="#" aria-label="Twitter">&#120143;</a><a class="soc-btn" href="#" aria-label="YouTube">&#9654;</a></div>
+      </div>
+      <div class="footer-col"><h5>Platform</h5><ul><li><a href="#features">Visualization</a></li><li><a href="#heatmap">Risk Heatmaps</a></li><li><a href="#features">Cost Analysis</a></li><li><a href="#features">Documentation</a></li><li><a href="#features">CT Scan AI</a></li></ul></div>
+      <div class="footer-col"><h5>Procedures</h5><ul><li><a href="#procedures">Rhinoplasty</a></li><li><a href="#procedures">Mandibular</a></li><li><a href="#procedures">Orbital</a></li><li><a href="#procedures">Zygomatic</a></li><li><a href="#procedures">Flap Reconstruction</a></li></ul></div>
+      <div class="footer-col"><h5>Company</h5><ul><li><a href="#about">About</a></li><li><a href="#team">Team</a></li><li><a href="#security">Security</a></li><li><a href="#contact">Contact</a></li><li><a href="#contact">Careers</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2025 Refacium. All rights reserved.</div>
+      <div class="footer-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Security</a><a href="#">Legal</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const revEls = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
+},{ threshold:.08, rootMargin:'0px 0px -32px 0px' });
+revEls.forEach(el => obs.observe(el));
+
+function switchTab(i){
+  document.querySelectorAll('.ftab').forEach((t,idx) => t.classList.toggle('active', idx===i));
+  document.querySelectorAll('.fpanel').forEach((p,idx) => p.classList.toggle('active', idx===i));
+}
+
+function handleForm(e){
+  e.preventDefault();
+  document.getElementById('formSuccess').style.display='block';
+  e.target.reset();
+  setTimeout(()=>{ document.getElementById('formSuccess').style.display='none'; }, 5000);
+}
+
+function animateCounter(el, target, suffix, duration){
+  duration = duration || 1800;
+  var start=0, step=target/60;
+  var iv = setInterval(function(){
+    start = Math.min(start+step, target);
+    el.innerHTML = Math.floor(start)+'<span>'+suffix+'</span>';
+    if(start>=target) clearInterval(iv);
+  }, duration/60);
+}
+var impObs = new IntersectionObserver(function(entries){
+  if(entries[0].isIntersecting){
+    animateCounter(document.getElementById('c1'),10,'+');
+    animateCounter(document.getElementById('c2'),40,'%');
+    animateCounter(document.getElementById('c3'),50,'+');
+    animateCounter(document.getElementById('c4'),3,'x');
+    impObs.disconnect();
+  }
+},{ threshold:.3 });
+var impSec = document.getElementById('impact');
+if(impSec) impObs.observe(impSec);
+
+var hg = document.querySelector('.hero-grid');
+if(hg) window.addEventListener('scroll',function(){ hg.style.transform='translateY('+window.scrollY*.1+'px)'; },{passive:true});
+
+document.querySelectorAll('.cost-card,.testi-card,.why-cell,.proc-card,.about-card').forEach(function(c){
+  c.addEventListener('mousemove',function(e){
+    var r=c.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    c.style.transform='translateY(-3px) rotateX('+(-y*2.5)+'deg) rotateY('+(x*2.5)+'deg)';
+  });
+  c.addEventListener('mouseleave',function(){ c.style.transform=''; });
+});
+</script>
+</body>
+</html>
