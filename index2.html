@@ -70,10 +70,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .hz-r h5{color:var(--red-acc)} .hz-y h5{color:var(--amber)} .hz-g h5{color:var(--teal)}
 .hz p{font-size:.78rem;color:var(--slate);max-width:none;line-height:1.5}
 
-to{transform:translateX(-50%)}}
+/* MARQUEE */
+.marquee-section{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash);padding:1.4rem 0;overflow:hidden}
+.marquee-label{text-align:center;font-size:.66rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.marquee-track{display:flex;width:max-content;animation:mScroll 30s linear infinite}
+.marquee-track:hover{animation-play-state:paused}
+.marquee-item{display:flex;align-items:center;padding:0 2.4rem;border-right:1px solid var(--ash);font-family:var(--font-d);font-size:.92rem;color:var(--muted);white-space:nowrap;transition:color var(--ease)}
+.marquee-item:hover{color:var(--teal)}
+@keyframes mScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* SHARED */
-section{padding:8rem 0}
+section{padding:6rem 0}
 .sec-label{display:flex;align-items:center;gap:.9rem;margin-bottom:.8rem}
 .sec-div{flex:1;height:1px;background:var(--ash);max-width:50px}
 .sec-head{margin-bottom:3rem}
@@ -215,7 +222,15 @@ section{padding:8rem 0}
 .testi-role{font-size:.72rem;color:var(--muted)}
 .stars{color:var(--amber);font-size:.7rem;margin-bottom:.6rem}
 
-
+/* SECURITY */
+#security{background:var(--ivory);border-top:1px solid var(--ash)}
+.security-wrap{text-align:center}
+.security-wrap > p{margin:0 auto 2.8rem;text-align:center}
+.cert-grid{display:flex;justify-content:center;flex-wrap:wrap;gap:1.1rem}
+.cert-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.5rem 1.9rem;min-width:125px;text-align:center;transition:var(--ease)}
+.cert-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:var(--sh-sm)}
+.cert-name{font-size:.78rem;font-weight:600;color:var(--ink);letter-spacing:.03em}
+.cert-sub{font-size:.68rem;color:var(--muted);margin-top:.18rem}
 
 /* PROCEDURES */
 #procedures{background:var(--paper);border-top:1px solid var(--ash);border-bottom:1px solid var(--ash)}
@@ -224,7 +239,14 @@ section{padding:8rem 0}
 .proc-card h3{font-size:.92rem;margin-bottom:.28rem}
 .proc-card p{font-size:.78rem;max-width:none}
 
-
+/* TEAM */
+#team{background:var(--ivory);border-top:1px solid var(--ash)}
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem}
+.team-card{background:white;border:1px solid var(--ash);border-radius:var(--r-md);padding:1.6rem;text-align:center;transition:var(--ease)}
+.team-card:hover{box-shadow:var(--sh-md);transform:translateY(-3px)}
+.team-av{width:58px;height:58px;border-radius:50%;background:var(--teal-pale);margin:0 auto .85rem;display:grid;place-items:center;font-family:var(--font-d);font-size:1.2rem;color:var(--teal);border:1px solid rgba(11,110,98,.18)}
+.team-card h3{font-size:.9rem;margin-bottom:.16rem}
+.team-card p{font-size:.76rem;max-width:none}
 
 /* CONTACT */
 #contact{background:var(--paper);border-top:1px solid var(--ash)}
@@ -320,7 +342,12 @@ footer{background:var(--ink);padding:5rem 0 2.5rem}
   </div>
 </section>
 
-      
+<div class="marquee-section">
+  <p class="marquee-label">Trusted by leading hospitals, surgical centres &amp; research institutions</p>
+  <div style="overflow:hidden">
+    <div class="marquee-track">
+      <div class="marquee-item">AIIMS Delhi</div><div class="marquee-item">Fortis Healthcare</div><div class="marquee-item">Apollo Hospitals</div><div class="marquee-item">Manipal Health</div><div class="marquee-item">Medanta</div><div class="marquee-item">Max Healthcare</div><div class="marquee-item">Kokilaben Hospital</div><div class="marquee-item">IIT Jodhpur Research</div><div class="marquee-item">Narayana Health</div><div class="marquee-item">Tata Memorial</div>
+      <div class="marquee-item">AIIMS Delhi</div><div class="marquee-item">Fortis Healthcare</div><div class="marquee-item">Apollo Hospitals</div><div class="marquee-item">Manipal Health</div><div class="marquee-item">Medanta</div><div class="marquee-item">Max Healthcare</div><div class="marquee-item">Kokilaben Hospital</div><div class="marquee-item">IIT Jodhpur Research</div><div class="marquee-item">Narayana Health</div><div class="marquee-item">Tata Memorial</div>
     </div>
   </div>
 </div>
@@ -640,7 +667,42 @@ footer{background:var(--ink);padding:5rem 0 2.5rem}
   </div>
 </section>
 
+<section id="security">
+  <div class="container">
+    <div class="security-wrap">
+      <div style="display:flex;justify-content:center;margin-bottom:.65rem" class="reveal"><span class="tag">Security &amp; Compliance</span></div>
+      <h2 class="reveal d1">Enterprise-grade security<br>and controls</h2>
+      <p class="reveal d2">Refacium meets the highest standards for medical data security and compliance &mdash; with all controls hospital IT teams require.</p>
+      <div class="cert-grid reveal d2">
+        <div class="cert-card"><div class="cert-name">HIPAA</div><div class="cert-sub">Health data compliance</div></div>
+        <div class="cert-card"><div class="cert-name">SOC 2 Type II</div><div class="cert-sub">Security controls</div></div>
+        <div class="cert-card"><div class="cert-name">ISO 27001</div><div class="cert-sub">Information security</div></div>
+        <div class="cert-card"><div class="cert-name">DPDPA 2023</div><div class="cert-sub">India data privacy</div></div>
+        <div class="cert-card"><div class="cert-name">GDPR Ready</div><div class="cert-sub">European compliance</div></div>
+        <div class="cert-card"><div class="cert-name">NABH Aligned</div><div class="cert-sub">Indian hospital standards</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<section id="team">
+  <div class="container">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="tag">The Team</span><div class="sec-div"></div></div>
+      <h2>Built at the Intersection of<br>AI, Medicine &amp; Engineering</h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="team-av">F</div><h3>Founder &amp; CEO</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">MedTech Vision &amp; Strategy</p><p>Drives Refacium&rsquo;s product vision, clinical partnerships, and go-to-market strategy.</p></div>
+      <div class="team-card reveal d1"><div class="team-av">AI</div><h3>AI Research Lead</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">Computer Vision &amp; GenAI</p><p>Develops visualization models, facial risk mapping algorithms, and CT analysis pipeline.</p></div>
+      <div class="team-card reveal d2"><div class="team-av">CL</div><h3>Clinical Advisor</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">Reconstructive Surgery</p><p>Validates heatmap accuracy and ensures clinical-grade workflow integration.</p></div>
+      <div class="team-card reveal d3"><div class="team-av">BD</div><h3>Head of Business Dev</h3><p style="color:var(--teal);font-size:.71rem;font-weight:500;margin-bottom:.22rem">Hospital Partnerships</p><p>Leads institutional licensing, clinical validation pilots, and hospital onboarding.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:2.4rem" class="reveal">
+      <p style="max-width:44ch;margin:0 auto 1.3rem;text-align:center">Seeking clinical advisors, institutional partners, and investors who believe in AI-powered surgical planning.</p>
+      <a href="#contact" class="btn btn-primary">Partner With Us &rarr;</a>
+    </div>
+  </div>
+</section>
 
 <section id="contact">
   <div class="container">
